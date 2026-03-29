@@ -15,11 +15,11 @@ spec:
               service:
                 name: {{ include "spring-boot-api.fullname" . }}
                 port:
-                  number: {{ .Values.service.ports.api }}
+                  name: api
           - path: /service
             pathType: Prefix
             backend:
               service:
                 name: {{ include "spring-boot-api.fullname" . }}
                 port:
-                  number: {{ .Values.service.ports.api }}
+                  name: api

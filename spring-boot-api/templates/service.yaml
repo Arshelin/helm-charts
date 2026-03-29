@@ -6,7 +6,7 @@ metadata:
   labels:
     {{- include "spring-boot-api.labels" . | nindent 4 }}
   annotations:
-    cloud.google.com/backend-config: '{"default":"{{ include "spring-boot-api.fullname" . }}"}'
+    cloud.google.com/backend-config: '{"ports":{"api":"{{ include "spring-boot-api.fullname" . }}"}}'
 spec:
   type: {{ .Values.service.type }}
   selector:
