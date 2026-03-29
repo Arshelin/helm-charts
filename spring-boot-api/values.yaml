@@ -19,7 +19,7 @@ springProfile: dev
 env: dev
 
 service:
-  type: ClusterIP
+  type: NodePort
   ports:
     api: 8080
     logs: 8081
