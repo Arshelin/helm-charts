@@ -1,0 +1,54 @@
+# Default values — overridden per environment under values/<env>.yaml
+
+nameOverride: ""
+fullnameOverride: ""
+
+# Image defaults — repository and tag are overridden per env by CI
+image:
+  repository: europe-central2-docker.pkg.dev/project-77fd6584-9134-4b27-9b1/webapp-dev/webapp
+  tag: "latest"
+  pullPolicy: Always
+
+# Number of pod replicas (3 for dev, 5 for prod)
+replicaCount: 3
+
+# Active Spring profile passed as a container arg
+springProfile: dev
+
+# Short environment label used in ConfigMap content
+env: dev
+
+service:
+  type: ClusterIP
+  ports:
+    api: 8080
+    logs: 8081
+    soap: 8082
+
+ingress:
+  className: nginx
+  host: dev.spring-boot-api.example.com
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+# GCP project ID — used by SecretStore for Secret Manager access
+gcpProjectId: "project-77fd6584-9134-4b27-9b1"
+
+# Kubernetes ServiceAccount for Workload Identity
+serviceAccount:
+  annotations: {}
+
+# Database connection — POSTGRES_URL and POSTGRES_USER are injected as env vars;
+# POSTGRES_PASSWORD is synced from GCP Secret Manager via External Secrets.
+database:
+  host: "localhost"
+  port: 5432
+  name: "webapp"
+  user: "webapp_admin"
+  secretManagerKey: "dev-db-password"

@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "spring-boot-api.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "spring-boot-api.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+
+  selector:
+    matchLabels:
+      {{- include "spring-boot-api.selectorLabels" . | nindent 6 }}
+
+  # RollingUpdate — maxUnavailable: 0 guarantees zero downtime;
+  # maxSurge: 1 allows one extra pod while the update rolls out.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
+  template:
+    metadata:
+      labels:
+        {{- include "spring-boot-api.selectorLabels" . | nindent 8 }}
+      annotations:
+        # Forces a rolling restart whenever the ConfigMap or Secret content changes.
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        checksum/external-secret: {{ include (print $.Template.BasePath "/external-secret.yaml") . | sha256sum }}
+
+    spec:
+      serviceAccountName: {{ include "spring-boot-api.fullname" . }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          # Active Spring profile injected as a startup argument
+          args:
+            - "--spring.profiles.active={{ .Values.springProfile }}"
+
+          ports:
+            - name: api
+              containerPort: {{ .Values.service.ports.api }}
+              protocol: TCP
+            - name: logs
+              containerPort: {{ .Values.service.ports.logs }}
+              protocol: TCP
+            - name: soap
+              containerPort: {{ .Values.service.ports.soap }}
+              protocol: TCP
+
+          env:
+            # Pod IP resolved dynamically from the Downward API
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            # Database credentials
+            - name: POSTGRES_URL
+              value: "jdbc:postgresql://{{ .Values.database.host }}:{{ .Values.database.port }}/{{ .Values.database.name }}"
+            - name: POSTGRES_USER
+              value: {{ .Values.database.user | quote }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "spring-boot-api.fullname" . }}-db
+                  key: POSTGRES_PASSWORD
+            # Application secrets
+            - name: APP_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "spring-boot-api.fullname" . }}
+                  key: APP_SECRET_KEY
+            - name: API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "spring-boot-api.fullname" . }}
+                  key: API_TOKEN
+
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.service.ports.api }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.service.ports.api }}
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 3
+
+          resources:
+            requests:
+              cpu: {{ .Values.resources.requests.cpu }}
+              memory: {{ .Values.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.resources.limits.cpu }}
+              memory: {{ .Values.resources.limits.memory }}
+
+          lifecycle:
+            # Graceful shutdown — notifies the application before the pod is removed.
+            preStop:
+              exec:
+                command:
+                  - wget
+                  - -q
+                  - --spider
+                  - http://localhost:8080/service/shutdown
+
+          volumeMounts:
+            - name: app-config
+              mountPath: /app/config/application.yaml
+              subPath: application.yaml
+              readOnly: true
+
+      volumes:
+        - name: app-config
+          configMap:
+            name: {{ include "spring-boot-api.fullname" . }}-config

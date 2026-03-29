@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "spring-boot-api.fullname" . }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "spring-boot-api.labels" . | nindent 4 }}
+data:
+  # Mounted into the pod at /app/config/application.yaml — overrides classpath config from JAR
+  application.yaml: |
+    spring:
+      application:
+        name: {{ include "spring-boot-api.fullname" . }}
+      datasource:
+        url: ${POSTGRES_URL}
+        username: ${POSTGRES_USER}
+        password: ${POSTGRES_PASSWORD}
+        driver-class-name: org.postgresql.Driver
+      jpa:
+        database-platform: org.hibernate.dialect.PostgreSQLDialect
+        hibernate:
+          ddl-auto: update

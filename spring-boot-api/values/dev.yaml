@@ -1,0 +1,24 @@
+# Development environment overrides
+replicaCount: 3
+env: dev
+springProfile: dev
+
+image:
+  repository: europe-central2-docker.pkg.dev/project-77fd6584-9134-4b27-9b1/webapp-dev/webapp
+  tag: "latest"
+  pullPolicy: Always
+
+ingress:
+  className: nginx
+  host: dev.spring-boot-api.arsh.io
+
+serviceAccount:
+  annotations:
+    iam.gke.io/gcp-service-account: dev-webapp-sa@project-77fd6584-9134-4b27-9b1.iam.gserviceaccount.com
+
+database:
+  host: "10.184.0.3"
+  port: 5432
+  name: "webapp"
+  user: "webapp_admin"
+  secretManagerKey: "dev-db-password"
