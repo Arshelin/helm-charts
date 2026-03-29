@@ -5,13 +5,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "spring-boot-api.labels" . | nindent 4 }}
-  annotations:
-    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
-  ingressClassName: {{ .Values.ingress.className }}
   rules:
-    - host: {{ .Values.ingress.host }}
-      http:
+    - http:
         paths:
           - path: /api
             pathType: Prefix
@@ -20,17 +16,10 @@ spec:
                 name: {{ include "spring-boot-api.fullname" . }}
                 port:
                   number: {{ .Values.service.ports.api }}
-          - path: /logs
+          - path: /service
             pathType: Prefix
             backend:
               service:
                 name: {{ include "spring-boot-api.fullname" . }}
                 port:
-                  number: {{ .Values.service.ports.logs }}
-          - path: /soap
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ include "spring-boot-api.fullname" . }}
-                port:
-                  number: {{ .Values.service.ports.soap }}
+                  number: {{ .Values.service.ports.api }}
