@@ -19,6 +19,6 @@ serviceAccount:
 database:
   host: "10.111.0.2"
   port: 5432
-  name: "webapp"
+  name: "prod-webapp-db"
   user: "webapp_admin"
   secretManagerKey: "prod-db-password"

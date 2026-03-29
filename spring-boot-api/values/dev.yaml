@@ -19,6 +19,6 @@ serviceAccount:
 database:
   host: "10.184.0.3"
   port: 5432
-  name: "webapp"
+  name: "dev-webapp-db"
   user: "webapp_admin"
   secretManagerKey: "dev-db-password"
