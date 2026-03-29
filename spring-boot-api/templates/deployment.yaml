@@ -32,6 +32,8 @@ spec:
 
     spec:
       serviceAccountName: {{ include "spring-boot-api.fullname" . }}
+      imagePullSecrets:
+        - name: {{ include "spring-boot-api.fullname" . }}-registry
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

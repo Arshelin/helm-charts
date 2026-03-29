@@ -1,0 +1,15 @@
+apiVersion: generators.external-secrets.io/v1alpha1
+kind: GCRAccessToken
+metadata:
+  name: {{ include "spring-boot-api.fullname" . }}-gcr
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "spring-boot-api.labels" . | nindent 4 }}
+spec:
+  projectID: {{ .Values.gcpProjectId }}
+  auth:
+    workloadIdentity:
+      clusterLocation: europe-central2-a
+      clusterName: {{ .Values.env }}-global-cluster-0
+      serviceAccountRef:
+        name: {{ include "spring-boot-api.fullname" . }}
