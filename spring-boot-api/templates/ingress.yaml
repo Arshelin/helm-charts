@@ -5,18 +5,14 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "spring-boot-api.labels" . | nindent 4 }}
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: {{ .Values.ingress.staticIpName }}
 spec:
+  ingressClassName: {{ .Values.ingress.className }}
   rules:
     - http:
         paths:
           - path: /api
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ include "spring-boot-api.fullname" . }}
-                port:
-                  name: api
-          - path: /service
             pathType: Prefix
             backend:
               service:

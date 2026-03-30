@@ -26,8 +26,9 @@ service:
     soap: 8082
 
 ingress:
-  className: nginx
-  host: dev.spring-boot-api.example.com
+  className: gce
+  staticIpName: ""
+  securityPolicy: ""
 
 resources:
   requests:

@@ -9,8 +9,9 @@ image:
   pullPolicy: IfNotPresent
 
 ingress:
-  className: nginx
-  host: prod.spring-boot-api.arsh.io
+  className: gce
+  staticIpName: prod-webapp-lb-ip
+  securityPolicy: prod-webapp-waf-policy
 
 serviceAccount:
   annotations:

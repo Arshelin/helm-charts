@@ -8,5 +8,6 @@ metadata:
 spec:
   healthCheck:
     type: HTTP
-    port: {{ .Values.service.ports.api }}
     requestPath: /service/health
+  securityPolicy:
+    name: {{ .Values.ingress.securityPolicy }}

@@ -9,8 +9,9 @@ image:
   pullPolicy: Always
 
 ingress:
-  className: nginx
-  host: dev.spring-boot-api.arsh.io
+  className: gce
+  staticIpName: dev-webapp-lb-ip
+  securityPolicy: dev-webapp-waf-policy
 
 serviceAccount:
   annotations:
