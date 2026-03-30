@@ -9,8 +9,8 @@ metadata:
     kubernetes.io/ingress.global-static-ip-name: {{ .Values.ingress.staticIpName }}
     cloud.google.com/neg: '{"ingress":true}'
     kubernetes.io/ingress.allow-http: "true"
+    kubernetes.io/ingress.class: gce
 spec:
-  ingressClassName: {{ .Values.ingress.className }}
   rules:
     - http:
         paths:
